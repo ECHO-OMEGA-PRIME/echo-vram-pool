@@ -18,3 +18,7 @@ database_id = "8c314e20-3faf-4bc5-bace-5a0d3bedd4d2"
 [[kv_namespaces]]
 binding = "CACHE"
 id = "a354aa37d9ed4154b205821cace2ceb7"
+
+[[analytics_engine_datasets]]
+binding = "ANALYTICS"
+dataset = "echo_metrics"
