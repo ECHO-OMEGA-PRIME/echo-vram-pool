@@ -178,8 +178,8 @@ function authenticate(request: Request, env: Env): boolean {
 // ─── DB Initialization ────────────────────────────────────────────────────────
 
 async function ensureSchema(db: D1Database): Promise<void> {
-  await db.exec(`
-    CREATE TABLE IF NOT EXISTS nodes (
+  await db.batch([
+    db.prepare(`CREATE TABLE IF NOT EXISTS nodes (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL UNIQUE,
       hostname TEXT NOT NULL,
@@ -191,8 +191,8 @@ async function ensureSchema(db: D1Database): Promise<void> {
       last_heartbeat TEXT,
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
       updated_at TEXT NOT NULL DEFAULT (datetime('now'))
-    );
-    CREATE TABLE IF NOT EXISTS allocations (
+    )`),
+    db.prepare(`CREATE TABLE IF NOT EXISTS allocations (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       node_name TEXT NOT NULL,
       gpu_index INTEGER NOT NULL DEFAULT 0,
@@ -204,8 +204,8 @@ async function ensureSchema(db: D1Database): Promise<void> {
       allocated_at TEXT NOT NULL DEFAULT (datetime('now')),
       freed_at TEXT,
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
-    );
-    CREATE TABLE IF NOT EXISTS workloads (
+    )`),
+    db.prepare(`CREATE TABLE IF NOT EXISTS workloads (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
       model_name TEXT NOT NULL,
@@ -219,8 +219,8 @@ async function ensureSchema(db: D1Database): Promise<void> {
       completed_at TEXT,
       error TEXT,
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
-    );
-    CREATE TABLE IF NOT EXISTS pool_stats (
+    )`),
+    db.prepare(`CREATE TABLE IF NOT EXISTS pool_stats (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       date TEXT NOT NULL,
       total_vram_mb INTEGER NOT NULL DEFAULT 0,
@@ -230,8 +230,8 @@ async function ensureSchema(db: D1Database): Promise<void> {
       avg_allocation_mb REAL NOT NULL DEFAULT 0.0,
       peak_utilization REAL NOT NULL DEFAULT 0.0,
       UNIQUE(date)
-    );
-  `);
+    )`),
+  ]);
 }
 
 async function seedDefaultNodes(db: D1Database): Promise<void> {
